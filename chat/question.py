@@ -1,0 +1,2 @@
+def userQuestion(message):
+    pass
