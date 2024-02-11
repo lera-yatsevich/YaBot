@@ -1,29 +1,6 @@
-from environs import Env
 import psycopg2
 
-env = Env()
-env.read_env('../env/.env')
-
-
-class postgresParams():
-    def __init__(self,
-                 host: str = 'postgres',
-                 database: str = 'db',
-                 user: str = 'postgres',
-                 password: str = 'postgres',
-                 port: str = '5432') -> None:
-        self.host = host
-        self.database = database
-        self.user = user
-        self.password = password
-        self.port = port
-
-    def getParams(self):
-        return {'host': self.host,
-                'database': self.database,
-                'port': self.port,
-                'user': self.user,
-                'password': self.password}
+from dbase.params import params
 
 
 class postgresConn():
@@ -67,12 +44,12 @@ class postgresConn():
         return self.fetchall()
 
 
-p = postgresParams(host='localhost',
-                   user=env('POSTGRES_USER'),
-                   password=env('POSTGRES_PASSWORD'))
+# p = postgresParams(host='localhost',
+#                    user=env('POSTGRES_USER'),
+#                    password=env('POSTGRES_PASSWORD'))
 
 
-def getTableColumns(params, table, db, schema='public'):
+def getTableColumns(table, db, schema='public', params=params):
     '''
     The Python function getTableColumns retrieves the column '''
     '''names of a specified table from a PostgreSQL database.
@@ -99,7 +76,7 @@ def getTableColumns(params, table, db, schema='public'):
         return tuple([e[0] for e in temp])
 
 
-def getUserParameters(params, user_id):
+def getUserParameters(user_id, params=params):
     '''
     Retrieves parameters associated with a user from a PostgreSQL database '''
     '''based on the provided user_id.
@@ -114,20 +91,20 @@ def getUserParameters(params, user_id):
     '''it returns a dictionary containing the user's parameters mapped to '''
     '''their corresponding values. Otherwise, it returns None.
     '''
+    # print(f'{params.getParams()=}')
     with postgresConn(params.getParams()) as dbase:
         values = dbase.query(f"""SELECT *
         FROM db.public.user
         where user_id = {user_id}
         """)
 
-        columns = getTableColumns(params, 'user', 'db')
-        # print(values, columns)
+        columns = getTableColumns('user', 'db')
 
     if values and columns:
         return dict(zip(columns, values[0]))
 
 
-def getModelName(params, model_id):
+def getModelName(model_id, params=params):
     '''
     Retrieves information about a model from a PostgreSQL '''
     '''database based on the provided model_id
@@ -142,18 +119,20 @@ def getModelName(params, model_id):
     '''a dictionary containing the model's attributes mapped to their '''
     '''corresponding values. Otherwise, it returns None.
     '''
+    print(params)
+
     with postgresConn(params.getParams()) as dbase:
         values = dbase.query(f"""SELECT *
             FROM db.public.model
             where model_id = {model_id}
             """)
-        columns = getTableColumns(params, 'model', 'db')
+        columns = getTableColumns('model', 'db')
 
     if values and columns:
         return dict(zip(columns, values[0]))
 
 
-def updateTemperature(params, temp, user_id):
+def updateTemperature(temp, user_id, params=params):
     '''
     Updates the temperature for a specified user in a PostgreSQL database.
     Parameters:
@@ -173,7 +152,7 @@ def updateTemperature(params, temp, user_id):
             """)
 
 
-def updateMaxTokens(params, max_tokens, user_id):
+def updateMaxTokens(max_tokens, user_id, params=params):
     with postgresConn(params.getParams()) as dbase:
         dbase.cursor.execute(f"""update "user"
             set max_tokens = {max(min(max_tokens, 4000), 0)}
@@ -181,7 +160,7 @@ def updateMaxTokens(params, max_tokens, user_id):
             """)
 
 
-def updateModel(params, model_id, user_id):
+def updateModel(model_id, user_id, params=params):
     with postgresConn(params.getParams()) as dbase:
         dbase.cursor.execute(f"""update "user"
             set model_id = {model_id}
@@ -189,13 +168,12 @@ def updateModel(params, model_id, user_id):
             """)
 
 
-def registerUser(params, user_id, first_name, last_name, username):
+def registerUser(user_id, first_name, last_name, username, params=params):
     with postgresConn(params.getParams()) as dbase:
         values = dbase.query(f"""SELECT *
             FROM db.public.user
             where user_id = {user_id}
             """)
-        # columns = getTableColumns(params, 'user', 'db')
 
         if not values:
             dbase.cursor.execute(f"""
@@ -204,7 +182,7 @@ def registerUser(params, user_id, first_name, last_name, username):
                 """)
 
 
-def authRequest(params, user_id):
+def authRequest(user_id, params=params):
     with postgresConn(params.getParams()) as dbase:
         values = dbase.query(f"""SELECT *
             FROM db.public.user
@@ -217,13 +195,13 @@ def authRequest(params, user_id):
 # print(authRequest(p, 5555))
 
 
-def listOfModels(params):
+def listOfModels(params=params):
     with postgresConn(params.getParams()) as dbase:
         values = dbase.query("""SELECT *
             FROM db.public.model
             where in_use = true
             """)
-        columns = getTableColumns(params, 'model', 'db')
+        columns = getTableColumns('model', 'db')
 
     if values and columns:
         return {row[columns.index('model_id')]:
