@@ -91,7 +91,7 @@ def getUserParameters(user_id, params=params):
     '''it returns a dictionary containing the user's parameters mapped to '''
     '''their corresponding values. Otherwise, it returns None.
     '''
-    # print(f'{params.getParams()=}')
+
     with postgresConn(params.getParams()) as dbase:
         values = dbase.query(f"""SELECT *
         FROM db.public.user
@@ -119,7 +119,6 @@ def getModelName(model_id, params=params):
     '''a dictionary containing the model's attributes mapped to their '''
     '''corresponding values. Otherwise, it returns None.
     '''
-    print(params)
 
     with postgresConn(params.getParams()) as dbase:
         values = dbase.query(f"""SELECT *
@@ -130,6 +129,18 @@ def getModelName(model_id, params=params):
 
     if values and columns:
         return dict(zip(columns, values[0]))
+
+
+def getContextName(context_id):
+    with postgresConn(params.getParams()) as dbase:
+        values = dbase.query(f"""SELECT context_name
+            FROM db.public.context
+            where context_id = {context_id}
+            """)
+        # columns = getTableColumns('model', 'db')
+
+    if values:
+        return values[0][0]
 
 
 def updateTemperature(temp, user_id, params=params):
@@ -191,9 +202,6 @@ def authRequest(user_id, params=params):
             """)
     return len(values) == 1
 
-# print(authRequest(p, 204644083)==True)
-# print(authRequest(p, 5555))
-
 
 def listOfModels(params=params):
     with postgresConn(params.getParams()) as dbase:
@@ -206,3 +214,16 @@ def listOfModels(params=params):
     if values and columns:
         return {row[columns.index('model_id')]:
                 row[columns.index('model_name')] for row in values}
+
+
+def listOfContexts(user_id, params=params):
+    with postgresConn(params.getParams()) as dbase:
+        values = dbase.query(f"""SELECT *
+            FROM db.public.context
+            where user_id = {user_id}
+            """)
+        columns = getTableColumns('context', 'db')
+
+    if values and columns:
+        return {row[columns.index('context_id')]:
+                row[columns.index('context_name')] for row in values}

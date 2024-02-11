@@ -27,16 +27,10 @@ async def process_start_command(message: Message, state: FSMContext):
         await message.answer(text=lexicon.get('/start'))
     else:
         await message.answer(text=lexicon.get('auth_failed'))
-    # await state.set_state(FSMFillForm.answ_name)
 
 
 # если пользователь не авторизован
-@router.message(Command(commands=['parameters',
-                                  'set_temperature',
-                                  'set_max_tokens',
-                                  'set_model',
-                                  'message']),
-                                  ~StateFilter(FSMFillForm.auth))
+@router.message(~StateFilter(FSMFillForm.auth))
 async def process_auth_err(message: Message, state: FSMContext):
     await message.answer(text=lexicon.get('not_auth'))
 

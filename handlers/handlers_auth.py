@@ -8,13 +8,13 @@ from aiogram.types import Message, CallbackQuery
 from states.states import FSMFillForm
 from lexicon.lexicon import lexicon
 
-from dbase.connect import getUserParameters, getModelName
-from dbase.connect import listOfModels
+from dbase.connect import getUserParameters, getModelName, getContextName
+from dbase.connect import listOfModels, listOfContexts
 from dbase.connect import updateTemperature, updateMaxTokens, updateModel
 
 from chat.answer import getAnswer
 
-from keyboard.keyboard import createModelKeyboard
+from keyboard.keyboard import createModelKeyboard, createContextKeyboard
 
 router: Router = Router()
 
@@ -36,6 +36,37 @@ async def process_parameters_command(message: Message, state: FSMContext):
             await message.answer(text=lexicon.get('user_not_found'))
     else:
         await message.answer(text=lexicon.get('user_not_found'))
+
+
+# вход в контекст
+@router.message(Command(commands='context'))
+async def process_context(message: Message, state: FSMContext):
+    contexts = listOfContexts(message.chat.id)
+    keyboard = createContextKeyboard({**contexts,
+                                      'create_context': lexicon.get('create_context'),
+                                      'delete_context': lexicon.get('delete_context')})
+    await message.answer(text=lexicon.get('/context'),
+                         reply_markup=keyboard)
+
+
+# Обработка клавиатуры с контекстом - вариант контекста
+@router.callback_query(F.data.contains('context_'))
+async def process_buttons_context_choose(callback: CallbackQuery,
+                                         state: FSMContext):
+    context_id = int(re.findall("([0-9]+)", callback.data)[0])
+
+    await state.set_state(FSMFillForm.context)
+    await state.update_data(context=context_id)
+
+    # await state.get_data()
+
+    await callback.message.edit_text(
+        text=lexicon.get('set_context_done'))
+
+    context_name = getContextName(context_id)
+    print(context_name)
+    await callback.message.answer(text=f"{lexicon.get('current_context')} {context_name}")
+
 
 # Изменение температуры
 @router.message(Command(commands='set_temperature'),
