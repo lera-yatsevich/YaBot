@@ -11,6 +11,7 @@ from lexicon.lexicon import lexicon
 from dbase.connect import getUserParameters, getModelName, getContextName
 from dbase.connect import listOfModels, listOfContexts
 from dbase.connect import updateTemperature, updateMaxTokens, updateModel
+from dbase.connect import deleteContext
 
 from chat.answer import getAnswer
 
@@ -44,15 +45,41 @@ async def process_context(message: Message, state: FSMContext):
     contexts = listOfContexts(message.chat.id)
     keyboard = createContextKeyboard({**contexts,
                                       'create_context': lexicon.get('create_context'),
-                                      'delete_context': lexicon.get('delete_context')})
+                                      'delete_context': lexicon.get('delete_context')},
+                                      prefix='context_')
     await message.answer(text=lexicon.get('/context'),
                          reply_markup=keyboard)
 
 
+# Обработка клавиатуры с контекстом - вариант удаления контекста
+@router.callback_query(F.data.contains('delete_context'))
+async def process_buttons_context_delete(callback: CallbackQuery,
+                                         state: FSMContext):
+
+    contexts = listOfContexts(callback.message.chat.id)
+    keyboard = createContextKeyboard(contexts, prefix='del_')
+    await callback.message.edit_text(text=lexicon.get('if_delete_context'),
+                                     reply_markup=keyboard)
+
+
+# Обработка клавиатуры с контекстом - вариант создания контекста
+@router.callback_query(F.data.contains('create_context'))
+async def process_buttons_context_create(callback: CallbackQuery,
+                                         state: FSMContext):
+
+    await state.set_state(FSMFillForm.new_name)
+
+    await callback.message.edit_text(text=lexicon.get('new_context_name'))
+
+
 # Обработка клавиатуры с контекстом - вариант контекста
-@router.callback_query(F.data.contains('context_'))
+@router.callback_query(F.data.contains('context_'),
+                    #    F.data.regexp(r"context_(\d+)").as_("num")
+                       )
 async def process_buttons_context_choose(callback: CallbackQuery,
                                          state: FSMContext):
+    # print(f"{F.text=}, {F.text=='delete_context'}")
+    # print(f'{num=}')
     context_id = int(re.findall("([0-9]+)", callback.data)[0])
 
     await state.set_state(FSMFillForm.context)
@@ -63,9 +90,24 @@ async def process_buttons_context_choose(callback: CallbackQuery,
     await callback.message.edit_text(
         text=lexicon.get('set_context_done'))
 
+    await callback.message.answer(text=f"{lexicon.get('current_context')} "
+                                  f'"{getContextName(context_id)}". \n\n'
+                                  f"{lexicon.get('how_to_leave')}")
+
+
+# Обработка клавиатуры с выбором контекста для удаления
+@router.callback_query(F.data.contains('del_'))
+async def process_buttons_del_choose(callback: CallbackQuery,
+                                     state: FSMContext):
+
+    context_id = int(re.findall("([0-9]+)", callback.data)[0])
+
     context_name = getContextName(context_id)
-    print(context_name)
-    await callback.message.answer(text=f"{lexicon.get('current_context')} {context_name}")
+
+    deleteContext(context_id)
+
+    await callback.message.edit_text(text=f"{lexicon.get('context_deleted')} "
+                                     f'"{context_name}" {lexicon.get("context_deleted_2")}')
 
 
 # Изменение температуры
@@ -108,6 +150,7 @@ async def process_set_model_command(message: Message, state: FSMContext):
     await message.answer(text=lexicon.get('/set_model'),
                          reply_markup=keyboard)
 
+
 # Обработка клавиатуры с моделями
 @router.callback_query(F.data.contains('model_'))
 async def process_buttons_model(callback: CallbackQuery):
@@ -122,3 +165,10 @@ async def process_buttons_model(callback: CallbackQuery):
 async def process_message_command(message: Message, state: FSMContext):
     await message.answer(text=getAnswer(
         message.text.replace('/message', '').strip()))
+
+
+# техническая команда для сброса состояния
+@router.message(Command(commands='reset'))
+async def process_reset_command(message: Message, state: FSMContext):
+    await state.clear()
+    await message.answer(text=lexicon.get('/reset'))

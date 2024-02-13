@@ -35,13 +35,6 @@ async def process_auth_err(message: Message, state: FSMContext):
     await message.answer(text=lexicon.get('not_auth'))
 
 
-# техническая команда для сброса состояния
-@router.message(Command(commands='reset'))
-async def process_reset_command(message: Message, state: FSMContext):
-    await state.clear()
-    await message.answer(text=lexicon.get('/reset'))
-
-
 # Этот хэндлер будет срабатывать в всех непонятных случаях
 @router.message()
 async def send_echo(message: Message, state: FSMContext):

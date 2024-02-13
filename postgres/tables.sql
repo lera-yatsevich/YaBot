@@ -52,18 +52,46 @@ select *
 from "user";
 
 
---create table chat (
---	chat_id			integer 	not null	primary key
---);
+uniqueid
 
-drop table chat_id 
+select *
+from role;
 
---create table user_chat (
---	chat_id			integer		not null	references chat(chat_id) on delete cascade,
---	user_id			integer		not null	references "user" (user_id) on delete cascade,
---	constraint user_chat_unq	primary key(chat_id, user_id)
---);
+drop table context;
 
+create table context (
+	context_id		serial	 	not null	primary key,
+	context_name	varchar(50)	not null,
+	user_id			integer 	not null	references "user" (user_id) on delete cascade,
+	context			json 		not null	default '{"messages":[]}',
+	unique (context_name, user_id)
+);
+
+select *
+from context;
+
+insert into context (context_name, user_id) values ('тестовый контекст', 204644083);
+insert into context (context_name, user_id) values ('тестовый контекст 2', 204644083);
+
+;
+delete from context 
+where context_id = 0
+;
+
+
+;
+
+SELECT *--column_name, data_type, table_schema , table_name 
+FROM information_schema.columns
+where table_name ='context'
+	and table_catalog ='db'
+	and table_schema ='public'
+	
+	;
+
+
+
+commit;
 
 create table role (
 	role_id 		integer		not null	primary key,
@@ -73,29 +101,3 @@ create table role (
 insert into role values(0,'system');
 insert into role values(1,'user');
 insert into role values(2,'assistant');
-
-
-select *
-from role;
-
-drop table context;
-
-create table context (
-	content_id		integer 	not null	primary key,
-	content_name	varchar(50)	not null,
-	user_id			integer 	not null	references "user" (user_id) on delete cascade,
-	context			json 		not null
-);
-
-select *
-from context;
-
-
-SELECT *--column_name, data_type, table_schema , table_name 
-FROM information_schema.columns
-where table_name ='model'
-	and table_catalog ='db'
-	and table_schema ='public'
-	
-	;
-commit;

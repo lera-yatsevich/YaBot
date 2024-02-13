@@ -24,3 +24,9 @@ router.message.filter(StateFilter(FSMFillForm.context))
 async def process_context(message: Message, state: FSMContext):
     await state.set_state(FSMFillForm.auth)
     await message.answer(text=lexicon.get('/leave_context'))
+
+
+# Этот хэндлер будет отвечать на вопросы в чате
+@router.message()
+async def send_echo(message: Message, state: FSMContext):
+    await message.answer(text=lexicon.get('bot_dump_answer'))

@@ -1,7 +1,9 @@
+import json
 import psycopg2
 
 from dbase.params import params
 
+from chat.role import role
 
 class postgresConn():
     def __init__(self, params):
@@ -216,7 +218,7 @@ def listOfModels(params=params):
                 row[columns.index('model_name')] for row in values}
 
 
-def listOfContexts(user_id, params=params):
+def listOfContexts(user_id: int, params=params):
     with postgresConn(params.getParams()) as dbase:
         values = dbase.query(f"""SELECT *
             FROM db.public.context
@@ -227,3 +229,26 @@ def listOfContexts(user_id, params=params):
     if values and columns:
         return {row[columns.index('context_id')]:
                 row[columns.index('context_name')] for row in values}
+    else:
+        return dict()
+
+
+def deleteContext(context_id, params=params):
+    with postgresConn(params.getParams()) as dbase:
+        dbase.cursor.execute(f"""
+            delete from context
+            where context_id = {context_id}
+            """)
+
+
+def createContext(context_name: str,
+                  context_description: str,
+                  user_id: int,
+                  params=params):
+    lst = [{'role': role.SYSYEM, 'content': context_description}]
+    with postgresConn(params.getParams()) as dbase:
+
+        dbase.cursor.execute(f"""
+        insert into context (context_name, user_id, context)
+        values ('{context_name}', {user_id}, '{json.dumps(lst)}');
+        """)
