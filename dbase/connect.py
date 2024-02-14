@@ -253,3 +253,28 @@ def createContext(context_name: str,
         values ('{context_name}', {user_id}, '{json.dumps(lst,
         ensure_ascii=False).encode('utf8').decode()}');
         """)
+
+
+def getContext(context_id: int,
+               params=params) -> str:
+    with postgresConn(params.getParams()) as dbase:
+        values = dbase.query(f"""SELECT context
+            FROM db.public.context
+            where context_id = {context_id}
+            """)
+        print()
+        return values[0][0]
+
+
+def updateContext(context_id: int,
+                  question: str,
+                  answer: str,
+                  params=params) -> str:
+    lst = [{'role': role.USER, 'content': question.replace("'", "''")},
+           {'role': role.ASSISTANT, 'content': answer.replace("'", "''")}]
+    with postgresConn(params.getParams()) as dbase:
+        dbase.cursor.execute(f"""
+        update context
+        set context = context::jsonb || '{json.dumps(lst, ensure_ascii=False).encode('utf8').decode()}'::jsonb
+        where context_id={context_id}
+        """)

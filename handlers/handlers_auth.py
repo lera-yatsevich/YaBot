@@ -18,8 +18,8 @@ from chat.answer import getAnswer
 from keyboard.keyboard import createModelKeyboard, createContextKeyboard
 
 router: Router = Router()
-
 router.message.filter(StateFilter(FSMFillForm.auth))
+
 
 # Выводит текущие значения параметров
 @router.message(Command(commands='parameters'))

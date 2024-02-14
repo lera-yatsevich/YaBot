@@ -37,5 +37,5 @@ async def process_auth_err(message: Message, state: FSMContext):
 
 # Этот хэндлер будет срабатывать в всех непонятных случаях
 @router.message()
-async def send_echo(message: Message, state: FSMContext):
+async def process_whatever(message: Message, state: FSMContext):
     await message.reply(text=lexicon.get('trap'))

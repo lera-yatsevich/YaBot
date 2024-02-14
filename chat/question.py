@@ -1,5 +1,0 @@
-
-
-
-def userQuestion(message):
-    pass

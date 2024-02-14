@@ -1,5 +1,7 @@
 import json
 
+from dbase.connect import getContext, updateContext
+
 text = r'''{
     "id": "cmpl-8qQ1ncPqU4C43gXvMcEZ5UbUu0n31",
     "object": "text_completion",
@@ -31,6 +33,21 @@ def getAnswer(question):
     return answ['choices'][0]['text']
 
 
+def gptRequestInContext(messages):
+    answ = json.loads(text)
+    return answ['choices'][0]['text']
+
+
+def getAnswerInContext(question, context_id):
+
+    context_json = getContext(context_id)
+
+    answer = gptRequestInContext(messages=context_json)
+
+    updateContext(context_id, question, answer)
+
+    return answer
+
 # class messageAnswer():
 #     def __init__(self, answer=text) -> None:
 #         answ = json.loads(answer)
@@ -39,7 +56,3 @@ def getAnswer(question):
 
 #     def __str__(self) -> str:
 #         return self.content
-
-# a = chatAnswer(answer=text)
-
-# print(a)

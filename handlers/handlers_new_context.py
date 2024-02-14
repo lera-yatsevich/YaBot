@@ -1,7 +1,7 @@
-from aiogram import Router, F
+from aiogram import Router
 from aiogram.fsm.context import FSMContext
-from aiogram.filters import StateFilter, Command
-from aiogram.types import Message, CallbackQuery
+from aiogram.filters import StateFilter
+from aiogram.types import Message
 
 from states.states import FSMFillForm
 from lexicon.lexicon import lexicon
@@ -34,6 +34,8 @@ async def process_new_context_descr(message: Message,
     data_prew = await state.get_data()
 
     createContext(data_prew['context'], message.text, message.chat.id)
+
+    await state.set_data({})
 
     await state.set_state(FSMFillForm.auth)
 
