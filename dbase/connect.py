@@ -250,5 +250,6 @@ def createContext(context_name: str,
 
         dbase.cursor.execute(f"""
         insert into context (context_name, user_id, context)
-        values ('{context_name}', {user_id}, '{json.dumps(lst)}');
+        values ('{context_name}', {user_id}, '{json.dumps(lst,
+        ensure_ascii=False).encode('utf8').decode()}');
         """)
