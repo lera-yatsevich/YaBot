@@ -21,7 +21,6 @@ router: Router = Router()
 
 router.message.filter(StateFilter(FSMFillForm.auth))
 
-
 # Выводит текущие значения параметров
 @router.message(Command(commands='parameters'))
 async def process_parameters_command(message: Message, state: FSMContext):
@@ -57,7 +56,7 @@ async def process_buttons_context_delete(callback: CallbackQuery,
                                          state: FSMContext):
 
     contexts = listOfContexts(callback.message.chat.id)
-    keyboard = createContextKeyboard(contexts, prefix='del_')
+    keyboard = createContextKeyboard(contexts, prefix='delete_')
     await callback.message.edit_text(text=lexicon.get('if_delete_context'),
                                      reply_markup=keyboard)
 
@@ -96,7 +95,7 @@ async def process_buttons_context_choose(callback: CallbackQuery,
 
 
 # Обработка клавиатуры с выбором контекста для удаления
-@router.callback_query(F.data.contains('del_'))
+@router.callback_query(F.data.contains('delete_'))
 async def process_buttons_del_choose(callback: CallbackQuery,
                                      state: FSMContext):
 
@@ -142,7 +141,7 @@ async def process_set_maxtokens_command_err(message: Message,
 
 
 # Изменение модели
-@router.message(Command(commands='set_model'), StateFilter(FSMFillForm.auth))
+@router.message(Command(commands='set_model'))
 async def process_set_model_command(message: Message, state: FSMContext):
     models = listOfModels()
     curr_model = getUserParameters(message.chat.id).get('model_id')

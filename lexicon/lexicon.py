@@ -63,7 +63,7 @@ lexicon: dict = {'/start': 'Этот бот отправляет запросы 
 
                  'new_context_name': 'Введите название нового контекста',
 
-                 'new_context_descriprion': 'Введите описание роли ассистента '
+                 'new_context_description': 'Введите описание роли ассистента '
                  'в новом контексте',
 
-                 'new_context_saved': 'Новый контекст сохранет'}
+                 'new_context_saved': 'Новый контекст сохранен'}

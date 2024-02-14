@@ -1,7 +1,7 @@
-from aiogram import Router, F
+from aiogram import Router
 
 from aiogram.types import Message
-from aiogram.filters import CommandStart, StateFilter, Command
+from aiogram.filters import CommandStart, StateFilter
 
 from aiogram.fsm.context import FSMContext
 # from aiogram.fsm.state import default_state
