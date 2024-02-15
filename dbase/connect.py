@@ -5,6 +5,7 @@ from dbase.params import params
 
 from chat.role import role
 
+
 class postgresConn():
     def __init__(self, params):
         self._conn = psycopg2.connect(**params)

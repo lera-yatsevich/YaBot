@@ -52,8 +52,6 @@ select *
 from "user";
 
 
-uniqueid
-
 select *
 from role;
 
@@ -77,7 +75,9 @@ insert into context (context_name, user_id) values ('тестовый конте
 delete from context 
 where context_id = 0
 ;
-
+select context, context->2, context->2->'role', context->2->'content'
+from context
+where context_id =10;
 
 ;
 
@@ -87,17 +87,3 @@ where table_name ='context'
 	and table_catalog ='db'
 	and table_schema ='public'
 	
-	;
-
-
-
-commit;
-
-create table role (
-	role_id 		integer		not null	primary key,
-	role_name		VARCHAR(10)	not null
-)
-
-insert into role values(0,'system');
-insert into role values(1,'user');
-insert into role values(2,'assistant');

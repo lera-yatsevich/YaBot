@@ -1,7 +1,7 @@
 from aiogram import Router
 
 from aiogram.types import Message
-from aiogram.filters import CommandStart, StateFilter
+from aiogram.filters import CommandStart, StateFilter, Command
 
 from aiogram.fsm.context import FSMContext
 # from aiogram.fsm.state import default_state
@@ -14,7 +14,7 @@ from dbase.connect import registerUser, authRequest
 router: Router = Router()
 
 
-# Срабатывает на команду /start в дефолтном состоянии
+# Срабатывает на команду /start в любом состоянии
 # и выводит описания команд, если прошла авторизация
 @router.message(CommandStart())
 async def process_start_command(message: Message, state: FSMContext):
@@ -33,6 +33,13 @@ async def process_start_command(message: Message, state: FSMContext):
 @router.message(~StateFilter(FSMFillForm.auth))
 async def process_auth_err(message: Message, state: FSMContext):
     await message.answer(text=lexicon.get('not_auth'))
+
+
+# leave_context вне контекста
+@router.message(Command(commands='leave_context'))
+async def process_leave_context_outside(message: Message, state: FSMContext):
+
+    await message.answer(text=lexicon.get('leave_context_context_outside'))
 
 
 # Этот хэндлер будет срабатывать в всех непонятных случаях

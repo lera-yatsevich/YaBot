@@ -2,7 +2,7 @@ from environs import Env
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.redis import RedisStorage, Redis
 
-from handlers import handlers, handlers_auth
+from handlers import handlers, handlers_auth, handlers_set
 from handlers import handlers_context, handlers_new_context
 
 env = Env()
@@ -16,6 +16,7 @@ storage: RedisStorage = RedisStorage(redis=redis)
 
 # Создаем объекты бота и диспетчера
 dp = Dispatcher(storage=storage)
+dp.include_router(handlers_set.router)
 dp.include_router(handlers_context.router)
 dp.include_router(handlers_new_context.router)
 dp.include_router(handlers_auth.router)
