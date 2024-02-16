@@ -1,3 +1,5 @@
+import logging
+
 from environs import Env
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.redis import RedisStorage, Redis
@@ -9,6 +11,12 @@ env = Env()
 env.read_env('../env/.env')
 
 TELEGRAM_TOKEN = env('TELEGRAM_TOKEN')
+
+# Configure logging
+logging.basicConfig(level=logging.WARNING,
+                    filename="../yabot.log",
+                    format="%(asctime)s %(levelname)s %(message)s",
+                    filemode="w")
 
 redis: Redis = Redis(host='localhost')
 storage: RedisStorage = RedisStorage(redis=redis)
