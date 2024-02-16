@@ -6,17 +6,25 @@ create table model (
 	in_use			boolean		not null,
 	constraint model_name_unq unique(model_name)
 )
+
+
+;
+update "model" 
+set in_use  = false
+where model_id=1;
 ;
 
-insert into model values (0, 'gpt-3.5-turbo-instruct', true);
-insert into model values (1, 'gpt-3.5-turbo-0125', true);
+--только openai-internal и openai модели
+insert into model values (0, 'gpt-3.5-turbo-instruct', false);
+insert into model values (1, 'gpt-3.5-turbo-0125', false);
 insert into model values (2, 'gpt-3.5-turbo', true);
 insert into model values (3, 'gpt-3.5-turbo-16k', true);
 insert into model values (4, 'gpt-3.5-turbo-0613', true);
 insert into model values (5, 'gpt-3.5-turbo-16k-0613', true);
-insert into model values (6, 'gpt-3.5-turbo-1106', true);
-insert into model values (7, 'gpt-3.5-turbo-0301', true);
-insert into model values (8, 'gpt-3.5-turbo-instruct-0914', true);
+insert into model values (6, 'gpt-3.5-turbo-1106', false);
+insert into model values (7, 'gpt-3.5-turbo-0301', true);+
+insert into model values (8, 'gpt-3.5-turbo-instruct-0914', false);
+insert into model values (9, 'text-embedding-ada-002', true);
 
 
 select *
@@ -61,7 +69,7 @@ create table context (
 	context_id		serial	 	not null	primary key,
 	context_name	varchar(50)	not null,
 	user_id			integer 	not null	references "user" (user_id) on delete cascade,
-	context			json 		not null	default '{"messages":[]}',
+	context			json ,
 	unique (context_name, user_id)
 );
 
@@ -69,7 +77,7 @@ select *
 from context;
 
 insert into context (context_name, user_id) values ('тестовый контекст', 204644083);
-insert into context (context_name, user_id) values ('тестовый контекст 2', 204644083);
+insert into context (context_name, user_id, context) values ('тестовый контекст 2', 204644083, '{}');
 
 ;
 delete from context 
@@ -79,6 +87,8 @@ select context, context->2, context->2->'role', context->2->'content'
 from context
 where context_id =10;
 
+;
+insert into context (context_name, user_id, context) values ('Python ассистент 2', 204644083, '[{"role": "system", "content": "You are a specialist in python programming language"}, {"role": "user", "content": "Can you suggest me a description for function"}]')
 ;
 
 SELECT *--column_name, data_type, table_schema , table_name 

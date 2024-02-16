@@ -23,10 +23,10 @@ router.message.filter(~StateFilter(default_state))
 async def process_parameters_command(message: Message, state: FSMContext):
     userParam = getUserParameters(message.chat.id)
     if userParam:
-        modelParam = getModelName(userParam.get('model_id'))
-        if modelParam:
+        modelName = getModelName(userParam.get('model_id'))
+        if modelName:
             await message.answer(text=f"{lexicon.get('/parameters')}"
-                                 f"model: {modelParam.get('model_name')}\n"
+                                 f"model: {modelName}\n"
                                  f"temperature: {userParam.get('temperature')}\n"
                                  f"max_tokens: {userParam.get('max_tokens')}")
         else:

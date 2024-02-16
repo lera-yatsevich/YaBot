@@ -79,7 +79,8 @@ def getTableColumns(table, db, schema='public', params=params):
         return tuple([e[0] for e in temp])
 
 
-def getUserParameters(user_id, params=params):
+def getUserParameters(user_id: int,
+                      params=params):
     '''
     Retrieves parameters associated with a user from a PostgreSQL database '''
     '''based on the provided user_id.
@@ -107,7 +108,7 @@ def getUserParameters(user_id, params=params):
         return dict(zip(columns, values[0]))
 
 
-def getModelName(model_id, params=params):
+def getModelName(model_id: int, params=params):
     '''
     Retrieves information about a model from a PostgreSQL '''
     '''database based on the provided model_id
@@ -124,17 +125,15 @@ def getModelName(model_id, params=params):
     '''
 
     with postgresConn(params.getParams()) as dbase:
-        values = dbase.query(f"""SELECT *
+        values = dbase.query(f"""SELECT model_name
             FROM db.public.model
             where model_id = {model_id}
             """)
-        columns = getTableColumns('model', 'db')
 
-    if values and columns:
-        return dict(zip(columns, values[0]))
+        return values[0][0]
 
 
-def getContextName(context_id):
+def getContextName(context_id: int) -> str:
     with postgresConn(params.getParams()) as dbase:
         values = dbase.query(f"""SELECT context_name
             FROM db.public.context
@@ -146,7 +145,9 @@ def getContextName(context_id):
         return values[0][0]
 
 
-def updateTemperature(temp, user_id, params=params):
+def updateTemperature(temp: float,
+                      user_id: int,
+                      params=params) -> None:
     '''
     Updates the temperature for a specified user in a PostgreSQL database.
     Parameters:
@@ -166,7 +167,9 @@ def updateTemperature(temp, user_id, params=params):
             """)
 
 
-def updateMaxTokens(max_tokens, user_id, params=params):
+def updateMaxTokens(max_tokens: int,
+                    user_id: int,
+                    params=params) -> None:
     with postgresConn(params.getParams()) as dbase:
         dbase.cursor.execute(f"""update "user"
             set max_tokens = {max(min(max_tokens, 4000), 0)}
@@ -174,7 +177,8 @@ def updateMaxTokens(max_tokens, user_id, params=params):
             """)
 
 
-def updateModel(model_id, user_id, params=params):
+def updateModel(model_id: int,
+                user_id: int, params=params) -> None:
     with postgresConn(params.getParams()) as dbase:
         dbase.cursor.execute(f"""update "user"
             set model_id = {model_id}
@@ -182,7 +186,11 @@ def updateModel(model_id, user_id, params=params):
             """)
 
 
-def registerUser(user_id, first_name, last_name, username, params=params):
+def registerUser(user_id: int,
+                 first_name: str,
+                 last_name: str,
+                 username: str,
+                 params=params):
     with postgresConn(params.getParams()) as dbase:
         values = dbase.query(f"""SELECT *
             FROM db.public.user
@@ -196,7 +204,7 @@ def registerUser(user_id, first_name, last_name, username, params=params):
                 """)
 
 
-def authRequest(user_id, params=params):
+def authRequest(user_id: int, params=params) -> bool:
     with postgresConn(params.getParams()) as dbase:
         values = dbase.query(f"""SELECT *
             FROM db.public.user
@@ -234,7 +242,7 @@ def listOfContexts(user_id: int, params=params):
         return dict()
 
 
-def deleteContext(context_id, params=params):
+def deleteContext(context_id: int, params=params):
     with postgresConn(params.getParams()) as dbase:
         dbase.cursor.execute(f"""
             delete from context
@@ -251,7 +259,7 @@ def createContext(context_name: str,
 
         dbase.cursor.execute(f"""
         insert into context (context_name, user_id, context)
-        values ('{context_name}', {user_id}, '{json.dumps(lst,
+        values ('{context_name[:50]}', {user_id}, '{json.dumps(lst,
         ensure_ascii=False).encode('utf8').decode()}');
         """)
 
@@ -263,14 +271,14 @@ def getContext(context_id: int,
             FROM db.public.context
             where context_id = {context_id}
             """)
-        print()
+
         return values[0][0]
 
 
 def updateContext(context_id: int,
                   context: str,
                   context_role: role,
-                  params=params) -> str:
+                  params=params):
     lst = [{'role': context_role, 'content': context.replace("'", "''")}]
     with postgresConn(params.getParams()) as dbase:
         dbase.cursor.execute(f"""
@@ -280,7 +288,7 @@ def updateContext(context_id: int,
         """)
 
 
-def getUserfromContext(context_id: str):
+def getUserfromContext(context_id: int):
     with postgresConn(params.getParams()) as dbase:
         values = dbase.query(f"""SELECT user_id
             FROM db.public.context

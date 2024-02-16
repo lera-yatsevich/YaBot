@@ -11,8 +11,6 @@ from lexicon.lexicon import lexicon
 
 from dbase.connect import getContextName, listOfContexts, deleteContext
 
-from chat.answer import getAnswer
-
 from keyboard.keyboard import createContextKeyboard
 
 router: Router = Router()
@@ -88,13 +86,6 @@ async def process_buttons_del_choose(callback: CallbackQuery,
 
     await callback.message.edit_text(text=f"{lexicon.get('context_deleted')} "
                                      f'"{context_name}" {lexicon.get("context_deleted_2")}')
-
-
-# Отправка единичного сообщения в ChatGPT
-@router.message(Command(commands='message'))
-async def process_message_command(message: Message, state: FSMContext):
-    await message.answer(text=getAnswer(
-        message.text.replace('/message', '').strip()))
 
 
 # техническая команда для сброса состояния
