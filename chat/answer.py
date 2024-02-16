@@ -1,6 +1,14 @@
 import json
+from environs import Env
+from openai import OpenAI
 
 from dbase.connect import getContext, updateContext
+from dbase.connect import getUserParameters, getUserfromContext
+
+from chat.role import role
+
+env = Env()
+env.read_env('../env/.env')
 
 text = r'''{
     "id": "cmpl-8qQ1ncPqU4C43gXvMcEZ5UbUu0n31",
@@ -33,26 +41,36 @@ def getAnswer(question):
     return answ['choices'][0]['text']
 
 
-def gptRequestInContext(messages):
-    answ = json.loads(text)
-    return answ['choices'][0]['text']
+def gptRequestInContext(context_id, messages):
+    client = OpenAI(
+        api_key=env('OPENAI_TOKEN'),
+    )
+
+    userId = getUserfromContext(context_id)
+
+    messages = getContext(userId)
+
+    parameters = getUserParameters(userId)
+
+    chat_completion = client.chat.completions.create(
+        messages=json.loads(messages),
+        model=parameters.get("model_name"),
+        max_tokens=parameters.get('max_tokens'),
+        temperature=parameters.get('temperature'),
+        n=1
+    )
+
+    answ = chat_completion.choices[0].message.content
+
+    return answ
 
 
 def getAnswerInContext(question, context_id):
 
-    context_json = getContext(context_id)
+    updateContext(context_id, question, role.USER)
 
-    answer = gptRequestInContext(messages=context_json)
+    answer = gptRequestInContext(context_id)
 
-    updateContext(context_id, question, answer)
+    updateContext(context_id, answer, role.ASSISTANT)
 
     return answer
-
-# class messageAnswer():
-#     def __init__(self, answer=text) -> None:
-#         answ = json.loads(answer)
-#         self.date = answ['created']
-#         self.content = answ['choices'][0]['text']
-
-#     def __str__(self) -> str:
-#         return self.content
