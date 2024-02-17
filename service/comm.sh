@@ -29,3 +29,22 @@ docker network create app
 
 # postgres on server
 docker exec -ti postgres psql -U admin db
+
+# superset
+
+docker run -d --rm \
+  -p 80:8088 \
+  --name superset \
+  --net=app \
+  apache/superset
+
+docker exec -it superset superset fab create-admin \
+              --username admin \
+              --firstname Superset \
+              --lastname Admin \
+              --email admin@superset.com \
+              --password admin
+
+docker exec -it superset superset db upgrade
+
+docker exec -it superset superset init

@@ -71,7 +71,8 @@ lexicon: dict = {'/start': 'Этот бот отправляет запросы 
                  'leave_context_context_outside': 'Вы находитесь вне контекста.\n\n'
                  'Чтобы выбрать действия с контекстом, введите /context',
 
-                 'process_context_in_context': 'Вы уже в контексте',
+                 'process_context_in_context': 'Вы уже в контексте. '
+                 'Чтобы покинуть контекст,',
 
                  '/admin': 'Выберите действие',
 

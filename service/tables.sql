@@ -118,7 +118,7 @@ create table chat_log (
 	prompt_tokens integer not null,
 	total_tokens integer not null,
 	content text not null
-)
+);
 
 select *
 from chat_log
