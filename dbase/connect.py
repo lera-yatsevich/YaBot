@@ -82,20 +82,6 @@ def getTableColumns(table, db, schema='public', params=params):
 
 def getUserParameters(user_id: int,
                       params=params) -> Dict | None:
-    '''
-    Retrieves parameters associated with a user from a PostgreSQL database '''
-    '''based on the provided user_id.
-    Parameters:
-        params: An object containing parameters for establishing '''
-    '''a connection to the PostgreSQL database.
-        user_id: The unique identifier of the user whose parameters '''
-    '''are to be retrieved.
-    Output:
-        If the function successfully retrieves parameters associated '''
-    '''with the user and their corresponding columns from the database, '''
-    '''it returns a dictionary containing the user's parameters mapped to '''
-    '''their corresponding values. Otherwise, it returns None.
-    '''
 
     with postgresConn(params.getParams()) as dbase:
         values = dbase.query(f"""SELECT *
@@ -184,10 +170,13 @@ def registerUser(user_id: int,
             """)
 
         if not values:
-            dbase.cursor.execute(f"""
-            insert into "user" (user_id, first_name, last_name, username)
-            values({user_id}, '{first_name}', '{last_name}', '{username}')
-                """)
+            try:
+                dbase.cursor.execute(f"""
+                insert into "user" (user_id, first_name, last_name, username)
+                values({user_id}, '{first_name}', '{last_name}', '{username}')
+                    """)
+            except:
+                raise ValueError
 
 
 def authRequest(user_id: int, params=params) -> bool:
@@ -240,14 +229,22 @@ def createContext(context_name: str,
                   context_description: str,
                   user_id: int,
                   params=params):
-    lst = [{'role': role.SYSYEM, 'content': context_description}]
+    lst = [{'role': role.SYSYEM, 'content': context_description.replace("'", "''")}]
     with postgresConn(params.getParams()) as dbase:
-
-        dbase.cursor.execute(f"""
-        insert into context (context_name, user_id, context)
-        values ('{context_name[:30]}', {user_id}, '{json.dumps(lst,
-        ensure_ascii=False).encode('utf8').decode()}');
-        """)
+        try:
+            dbase.cursor.execute(f"""
+            insert into context (
+                context_name,
+                user_id,
+                context)
+            values (
+                '{context_name[:30].replace("'", "''")}',
+                {user_id},
+                '{json.dumps(lst,ensure_ascii=False).encode('utf8').decode()}'
+                )
+            """)
+        except:
+            raise ValueError
 
 
 def getContext(context_id: int,
@@ -288,27 +285,30 @@ def getUserfromContext(context_id: int,
 def createChatLog(completion: Dict,
                   params=params) -> None:
     with postgresConn(params.getParams()) as dbase:
-        dbase.cursor.execute(f"""
-            insert into chat_log (
-                id,
-                user_name,
-                model_name,
-                datetime,
-                completion_tokens,
-                prompt_tokens,
-                total_tokens,
-                content
-                )
-            values (
-                '{completion['id']}',
-                '{completion['user_name']}',--поправить
-                '{completion['model_name']}',
-                {completion['created']},
-                {completion['completion_tokens']},
-                {completion['prompt_tokens']},
-                {completion['total_tokens']},
-                '{completion['content']}')
-        """)
+        try:
+            dbase.cursor.execute(f"""
+                insert into chat_log (
+                    id,
+                    user_name,
+                    model_name,
+                    datetime,
+                    completion_tokens,
+                    prompt_tokens,
+                    total_tokens,
+                    content
+                    )
+                values (
+                    '{completion['id']}',
+                    '{completion['user_name']}',--поправить
+                    '{completion['model_name']}',
+                    {completion['created']},
+                    {completion['completion_tokens']},
+                    {completion['prompt_tokens']},
+                    {completion['total_tokens']},
+                    '{completion['content'].replace("'", "''")}')
+            """)
+        except:
+            raise ValueError
 
 
 def listOfUsers(params=params,
