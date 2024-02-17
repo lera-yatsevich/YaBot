@@ -11,7 +11,7 @@ from lexicon.lexicon import lexicon
 
 from dbase.connect import getContextName, listOfContexts, deleteContext
 
-from keyboard.keyboard import createContextKeyboard
+from keyboard.keyboard import createKeyboard
 
 router: Router = Router()
 router.message.filter(StateFilter(FSMFillForm.auth))
@@ -21,27 +21,27 @@ router.message.filter(StateFilter(FSMFillForm.auth))
 @router.message(Command(commands='context'))
 async def process_context(message: Message, state: FSMContext):
     contexts = listOfContexts(message.chat.id)
-    keyboard = createContextKeyboard({**contexts,
-                                      'create_context': lexicon.get('create_context'),
-                                      'delete_context': lexicon.get('delete_context')},
-                                      prefix='context_')
+    keyboard = createKeyboard({**contexts,
+                               'create': lexicon.get('create_context'),
+                               'delete': lexicon.get('delete_context')},
+                               prefix='context_')
     await message.answer(text=lexicon.get('/context'),
                          reply_markup=keyboard)
 
 
 # Обработка клавиатуры с контекстом - вариант удаления контекста
-@router.callback_query(F.data.contains('delete_context'))
+@router.callback_query(F.data.contains('context_delete'))
 async def process_buttons_context_delete(callback: CallbackQuery,
                                          state: FSMContext):
 
     contexts = listOfContexts(callback.message.chat.id)
-    keyboard = createContextKeyboard(contexts, prefix='delete_')
+    keyboard = createKeyboard(contexts, prefix='delete_')
     await callback.message.edit_text(text=lexicon.get('if_delete_context'),
                                      reply_markup=keyboard)
 
 
 # Обработка клавиатуры с контекстом - вариант создания контекста
-@router.callback_query(F.data.contains('create_context'))
+@router.callback_query(F.data.contains('context_create'))
 async def process_buttons_context_create(callback: CallbackQuery,
                                          state: FSMContext):
 
@@ -52,7 +52,7 @@ async def process_buttons_context_create(callback: CallbackQuery,
 
 # Обработка клавиатуры с контекстом - вариант контекста
 @router.callback_query(F.data.contains('context_'),
-                    #    F.data.regexp(r"context_(\d+)").as_("num")
+                       F.data.regexp(r"context_(\d+)").as_("num")
                        )
 async def process_buttons_context_choose(callback: CallbackQuery,
                                          state: FSMContext):

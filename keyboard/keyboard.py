@@ -8,7 +8,7 @@ def createModelKeyboard(models, curr_model):
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-def createContextKeyboard(context, prefix: str = ''):
+def createKeyboard(context, prefix: str = ''):
     buttons = [[InlineKeyboardButton(text=v,
                                      callback_data=f'{prefix}{str(k)}')] for k, v in context.items()]
     return InlineKeyboardMarkup(inline_keyboard=buttons)

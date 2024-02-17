@@ -9,6 +9,7 @@ from aiogram.fsm.context import FSMContext
 from states.states import FSMFillForm
 from lexicon.lexicon import lexicon
 from dbase.connect import registerUser, authRequest
+from dbase.connect import setOfAdmins, getUserParameters
 
 
 router: Router = Router()
@@ -27,6 +28,15 @@ async def process_start_command(message: Message, state: FSMContext):
         await message.answer(text=lexicon.get('/start'))
     else:
         await message.answer(text=lexicon.get('auth_failed'))
+
+
+# обработка команды админ для не админов
+@router.message(Command(commands='admin'))
+async def process_not_admin(message: Message, state: FSMContext):
+
+    await message.answer(text=lexicon.get('not_admin')+'\n'.join(
+        [f"@{getUserParameters(admin_id)['username']}" for admin_id in setOfAdmins()])
+        )
 
 
 # если пользователь не авторизован

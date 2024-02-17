@@ -1,5 +1,6 @@
 import json
 import psycopg2
+from typing import Dict, Set
 
 from dbase.params import params
 
@@ -70,17 +71,17 @@ def getTableColumns(table, db, schema='public', params=params):
     '''it returns an empty tuple.
     '''
     with postgresConn(params.getParams()) as dbase:
-        temp = dbase.query(f"""SELECT column_name
+        temp = dbase.query(f'''SELECT column_name
             FROM information_schema.columns
             WHERE table_name = '{table}'
                and table_catalog='{db}'
                and table_schema='{schema}'
-            ORDER BY ordinal_position """)
+            ORDER BY ordinal_position ''')
         return tuple([e[0] for e in temp])
 
 
 def getUserParameters(user_id: int,
-                      params=params):
+                      params=params) -> Dict | None:
     '''
     Retrieves parameters associated with a user from a PostgreSQL database '''
     '''based on the provided user_id.
@@ -108,22 +109,7 @@ def getUserParameters(user_id: int,
         return dict(zip(columns, values[0]))
 
 
-def getModelName(model_id: int, params=params):
-    '''
-    Retrieves information about a model from a PostgreSQL '''
-    '''database based on the provided model_id
-    Parameters:
-        params: An object containing parameters for establishing '''
-    '''a connection to the PostgreSQL database.
-        model_id: The unique identifier of the model whose information '''
-    '''is to be retrieved.
-    Output:
-        If the function successfully retrieves information about '''
-    '''the model and its columns from the database, it returns '''
-    '''a dictionary containing the model's attributes mapped to their '''
-    '''corresponding values. Otherwise, it returns None.
-    '''
-
+def getModelName(model_id: int, params=params) -> str:
     with postgresConn(params.getParams()) as dbase:
         values = dbase.query(f"""SELECT model_name
             FROM db.public.model
@@ -190,7 +176,7 @@ def registerUser(user_id: int,
                  first_name: str,
                  last_name: str,
                  username: str,
-                 params=params):
+                 params=params) -> None:
     with postgresConn(params.getParams()) as dbase:
         values = dbase.query(f"""SELECT *
             FROM db.public.user
@@ -214,7 +200,7 @@ def authRequest(user_id: int, params=params) -> bool:
     return len(values) == 1
 
 
-def listOfModels(params=params):
+def listOfModels(params=params) -> Dict | None:
     with postgresConn(params.getParams()) as dbase:
         values = dbase.query("""SELECT *
             FROM db.public.model
@@ -227,7 +213,7 @@ def listOfModels(params=params):
                 row[columns.index('model_name')] for row in values}
 
 
-def listOfContexts(user_id: int, params=params):
+def listOfContexts(user_id: int, params=params) -> Dict:
     with postgresConn(params.getParams()) as dbase:
         values = dbase.query(f"""SELECT *
             FROM db.public.context
@@ -283,7 +269,8 @@ def updateContext(context_id: int,
     with postgresConn(params.getParams()) as dbase:
         dbase.cursor.execute(f"""
         update context
-        set context = context::jsonb || '{json.dumps(lst, ensure_ascii=False).encode('utf8').decode()}'::jsonb
+        set context = context::jsonb ||
+            '{json.dumps(lst, ensure_ascii=False).encode('utf8').decode()}'::jsonb
         where context_id={context_id}
         """)
 
@@ -298,7 +285,7 @@ def getUserfromContext(context_id: int,
         return values[0][0]
 
 
-def createChatLog(completion,
+def createChatLog(completion: Dict,
                   params=params) -> None:
     with postgresConn(params.getParams()) as dbase:
         dbase.cursor.execute(f"""
@@ -321,4 +308,44 @@ def createChatLog(completion,
                 {completion['prompt_tokens']},
                 {completion['total_tokens']},
                 '{completion['content']}')
+        """)
+
+
+def listOfUsers(params=params,
+                is_admitted: bool = True):
+    with postgresConn(params.getParams()) as dbase:
+        values = dbase.query(f'''SELECT *
+            FROM db.public."user"
+            where is_admitted = {is_admitted}
+                and is_admin=False
+            ''')
+
+        columns = getTableColumns('user', 'db')
+
+    if values and columns:
+        return {row[columns.index('user_id')]:
+                row[columns.index('username')] for row in values}
+    else:
+        return dict()
+
+
+def setOfAdmins(params=params) -> Set:
+    with postgresConn(params.getParams()) as dbase:
+        values = dbase.query(f'''SELECT user_id
+            FROM db.public."user"
+            where is_admin = true
+            ''')
+
+    if values:
+        return set([v[0] for v in values])
+    else:
+        return set()
+
+
+def updateUserAdmission(user_id: int, is_admitted: bool) -> None:
+    with postgresConn(params.getParams()) as dbase:
+        dbase.cursor.execute(f"""
+            update "user"
+            set is_admitted = {is_admitted}
+            where user_id={user_id}
         """)

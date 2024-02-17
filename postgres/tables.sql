@@ -44,18 +44,34 @@ create table "user" (
 );
 
 insert into "user" values(204644083,'lera', 'yatsevich', 'lerabarnard', true);
+insert into "user" values(171605607,'Kolhan', 'None', 'Kolhan', true);
 
-insert into "user" values(171605607,'kolya', 'panaioti', 'kolya');
 
+
+SELECT *
+FROM db."public"."user"
+where is_admitted = True
+    and is_admin=False;
+   
+   
+SELECT *
+FROM information_schema.columns
+where table_schema ='public'
+	and table_catalog ='db'
+	and table_name ='user';
 
 update "user"
-set is_admin  = false,
-	is_admitted = true
-where user_id=204644083;
+set is_admin  = false  ,
+	is_admitted = true 
+where user_id=171605607;
+
 
 
 select *
 from "user";
+
+delete from "user"
+where user_id=20464483;
 
 drop table context;
 
@@ -91,14 +107,23 @@ where 1=1--table_name ='context'
 	and table_catalog ='db'
 	and table_schema ='public';
 
-
+drop table chat_log;
 
 create table chat_log (
-	user_id integer not null,
-	model text not null,
-	dateteime datetime not null,
-	completion_tokens not null,
-	promt_tokens not null,
-	total_tokens not null
-	
+	id text not null,
+	user_name text not null,
+	model_name text not null,
+	datetime bigint not null,
+	completion_tokens integer not null,
+	prompt_tokens integer not null,
+	total_tokens integer not null,
+	content text not null
 )
+
+select *
+from chat_log
+
+
+select to_timestamp(datetime) ,datetime
+from chat_log
+
