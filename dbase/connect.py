@@ -1,3 +1,4 @@
+import logging
 import json
 import psycopg2
 from typing import Dict, Set
@@ -5,6 +6,12 @@ from typing import Dict, Set
 from dbase.params import params
 
 from chat.role import role
+
+# Configure logging
+logging.basicConfig(level=logging.WARNING,
+                    filename="../yabotlogs/connect.log",
+                    format="%(asctime)s %(levelname)s %(message)s",
+                    filemode="w")
 
 
 class postgresConn():
@@ -176,7 +183,11 @@ def registerUser(user_id: int,
                 values({user_id}, '{first_name}', '{last_name}', '{username}')
                     """)
             except:
-                raise ValueError
+                raise logging.error((user_id,
+                                     first_name,
+                                     last_name,
+                                     username,
+                                     values), exc_info=True)
 
 
 def authRequest(user_id: int, params=params) -> bool:
@@ -244,7 +255,9 @@ def createContext(context_name: str,
                 )
             """)
         except:
-            raise ValueError
+            logging.error((context_name,
+                           context_description,
+                           user_id), exc_info=True)
 
 
 def getContext(context_id: int,
@@ -308,7 +321,7 @@ def createChatLog(completion: Dict,
                     '{completion['content'].replace("'", "''")}')
             """)
         except:
-            raise ValueError
+            raise logging.error(completion, exc_info=True)
 
 
 def listOfUsers(params=params,

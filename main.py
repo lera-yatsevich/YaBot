@@ -14,7 +14,7 @@ TELEGRAM_TOKEN = env('TELEGRAM_TOKEN')
 
 # Configure logging
 logging.basicConfig(level=logging.WARNING,
-                    filename="../yabot.log",
+                    filename="../yabotlogs/main.log",
                     format="%(asctime)s %(levelname)s %(message)s",
                     filemode="w")
 
