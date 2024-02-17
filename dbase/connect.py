@@ -182,7 +182,7 @@ def registerUser(user_id: int,
                 insert into "user" (user_id, first_name, last_name, username)
                 values({user_id}, '{first_name}', '{last_name}', '{username}')
                     """)
-            except:
+            except Exception:
                 raise logging.exception("""{user_id=}, {first_name=},
                                      {last_name=},{username=},
                                      {value=s})""", exc_info=True)
@@ -252,7 +252,7 @@ def createContext(context_name: str,
                 '{json.dumps(lst,ensure_ascii=False).encode('utf8').decode()}'
                 )
             """)
-        except:
+        except Exception:
             logging.exception("""{context_name=},
                            {context_description=},
                            {user_id=}""", exc_info=True)
@@ -318,7 +318,7 @@ def createChatLog(completion: Dict,
                     {completion['total_tokens']},
                     '{completion['content'].replace("'", "''")}')
             """)
-        except:
+        except Exception:
             raise logging.exception('{completion=}', exc_info=True)
 
 
