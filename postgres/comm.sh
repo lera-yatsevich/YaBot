@@ -1,4 +1,4 @@
-# postgres
+# postgres prod
 docker run --rm -d \
   --net=app \
   --name postgres \
@@ -7,6 +7,18 @@ docker run --rm -d \
   -e POSTGRES_DB=db \
   -v pg_vol:/var/lib/postgresql/data \
   -p 5432:5432 \
+  postgres:16
+
+
+# postgres test
+docker run --rm -d \
+  --net=app \
+  --name postgres \
+  -e POSTGRES_PASSWORD=admin \
+  -e POSTGRES_USER=admin \
+  -e POSTGRES_DB=db \
+  -v pg_vol:/var/lib/postgresql/data \
+  -p 4321:5432 \
   postgres:16
 
 # volume

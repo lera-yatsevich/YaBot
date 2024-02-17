@@ -172,7 +172,7 @@ def updateMaxTokens(max_tokens: int,
                     params=params) -> None:
     with postgresConn(params.getParams()) as dbase:
         dbase.cursor.execute(f"""update "user"
-            set max_tokens = {max(min(max_tokens, 4000), 0)}
+            set max_tokens = {max(min(max_tokens, 16384), 0)}
             where user_id={user_id}
             """)
 
@@ -259,7 +259,7 @@ def createContext(context_name: str,
 
         dbase.cursor.execute(f"""
         insert into context (context_name, user_id, context)
-        values ('{context_name[:50]}', {user_id}, '{json.dumps(lst,
+        values ('{context_name[:30]}', {user_id}, '{json.dumps(lst,
         ensure_ascii=False).encode('utf8').decode()}');
         """)
 
@@ -278,7 +278,7 @@ def getContext(context_id: int,
 def updateContext(context_id: int,
                   context: str,
                   context_role: role,
-                  params=params):
+                  params=params) -> None:
     lst = [{'role': context_role, 'content': context.replace("'", "''")}]
     with postgresConn(params.getParams()) as dbase:
         dbase.cursor.execute(f"""
@@ -288,10 +288,37 @@ def updateContext(context_id: int,
         """)
 
 
-def getUserfromContext(context_id: int):
+def getUserfromContext(context_id: int,
+                       params=params) -> None:
     with postgresConn(params.getParams()) as dbase:
         values = dbase.query(f"""SELECT user_id
             FROM db.public.context
             where context_id = {context_id}
             """)
         return values[0][0]
+
+
+def createChatLog(completion,
+                  params=params) -> None:
+    with postgresConn(params.getParams()) as dbase:
+        dbase.cursor.execute(f"""
+            insert into chat_log (
+                id,
+                user_name,
+                model_name,
+                datetime,
+                completion_tokens,
+                prompt_tokens,
+                total_tokens,
+                content
+                )
+            values (
+                '{completion['id']}',
+                '{completion['user_name']}',--поправить
+                '{completion['model_name']}',
+                {completion['created']},
+                {completion['completion_tokens']},
+                {completion['prompt_tokens']},
+                {completion['total_tokens']},
+                '{completion['content']}')
+        """)

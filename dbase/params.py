@@ -27,4 +27,5 @@ class postgresParams():
 
 params = postgresParams(host='localhost',
                         user=env('POSTGRES_USER'),
-                        password=env('POSTGRES_PASSWORD'))
+                        password=env('POSTGRES_PASSWORD'),
+                        port=env('POSTGRES_PORT'))

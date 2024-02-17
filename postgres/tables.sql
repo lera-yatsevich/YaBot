@@ -51,7 +51,7 @@ insert into "user" values(171605607,'kolya', 'panaioti', 'kolya');
 update "user"
 set is_admin  = false,
 	is_admitted = true
-where user_id=171605607;
+where user_id=204644083;
 
 
 select *
@@ -90,3 +90,15 @@ FROM information_schema.tables
 where 1=1--table_name ='context'
 	and table_catalog ='db'
 	and table_schema ='public';
+
+
+
+create table chat_log (
+	user_id integer not null,
+	model text not null,
+	dateteime datetime not null,
+	completion_tokens not null,
+	promt_tokens not null,
+	total_tokens not null
+	
+)
