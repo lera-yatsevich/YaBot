@@ -183,11 +183,9 @@ def registerUser(user_id: int,
                 values({user_id}, '{first_name}', '{last_name}', '{username}')
                     """)
             except:
-                raise logging.error((user_id,
-                                     first_name,
-                                     last_name,
-                                     username,
-                                     values), exc_info=True)
+                raise logging.exception("""{user_id=}, {first_name=},
+                                     {last_name=},{username=},
+                                     {value=s})""", exc_info=True)
 
 
 def authRequest(user_id: int, params=params) -> bool:
@@ -255,9 +253,9 @@ def createContext(context_name: str,
                 )
             """)
         except:
-            logging.error((context_name,
-                           context_description,
-                           user_id), exc_info=True)
+            logging.exception("""{context_name=},
+                           {context_description=},
+                           {user_id=}""", exc_info=True)
 
 
 def getContext(context_id: int,
@@ -321,7 +319,7 @@ def createChatLog(completion: Dict,
                     '{completion['content'].replace("'", "''")}')
             """)
         except:
-            raise logging.error(completion, exc_info=True)
+            raise logging.exception('{completion=}', exc_info=True)
 
 
 def listOfUsers(params=params,
