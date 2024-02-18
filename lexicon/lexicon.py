@@ -57,16 +57,15 @@ lexicon: dict = {'/start': 'Этот бот отправляет запросы 
 
                  'if_delete_context': 'Выберите контекст для удаления',
 
-                 'context_deleted': 'Контекст',
-
-                 'context_deleted_2': 'успешно удален',
+                 'context_deleted': 'Контекст %s успешно удален',
 
                  'new_context_name': 'Введите название нового контекста',
 
                  'new_context_description': 'Введите описание роли ассистента '
                  'в новом контексте',
 
-                 'new_context_saved': 'Новый контекст сохранен',
+                 'new_context_saved': 'Новый контекст сохранен.\n\n'
+                 'Чтобы войти в контекст, введите /context',
 
                  'leave_context_context_outside': 'Вы находитесь вне контекста.\n\n'
                  'Чтобы выбрать действия с контекстом, введите /context',

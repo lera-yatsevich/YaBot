@@ -84,8 +84,9 @@ async def process_buttons_del_choose(callback: CallbackQuery,
 
     deleteContext(context_id)
 
-    await callback.message.edit_text(text=f"{lexicon.get('context_deleted')} "
-                                     f'"{context_name}" {lexicon.get("context_deleted_2")}')
+    await callback.message.edit_text(
+        text=f"{lexicon.get('context_deleted') % (context_name)}"
+        )
 
 
 # техническая команда для сброса состояния

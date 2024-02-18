@@ -1,4 +1,10 @@
-# postgres prod
+# volume
+docker volume create pg_vol
+
+# network
+docker network create app
+
+# postgres test
 docker run --rm -d \
   --net=app \
   --name postgres \
@@ -10,7 +16,7 @@ docker run --rm -d \
   postgres:16
 
 
-# postgres test
+# postgres prod
 docker run --rm -d \
   --net=app \
   --name postgres \
@@ -21,21 +27,25 @@ docker run --rm -d \
   -p 4321:5432 \
   postgres:16
 
-# volume
-docker volume create pg_vol
 
-# network
-docker network create app
-
-# postgres on server
+# SQL requests
 docker exec -ti postgres psql -U admin db
 
-# superset
-
+# superset prod
 docker run -d --rm \
-  -p 80:8088 \
-  --name superset \
   --net=app \
+  -p 80:8088 \
+  -e SUPERSET_SECRET_KEY=key \
+  --name superset \
+  apache/superset
+
+# superset test
+docker run -d --rm \
+  --net=app \
+  -p 80:8088 \
+  -e SUPERSET_SECRET_KEY=key \
+  --platform=linux/amd64 \
+  --name superset \
   apache/superset
 
 docker exec -it superset superset fab create-admin \
