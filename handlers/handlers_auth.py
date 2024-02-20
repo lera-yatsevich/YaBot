@@ -87,10 +87,3 @@ async def process_buttons_del_choose(callback: CallbackQuery,
     await callback.message.edit_text(
         text=f"{lexicon.get('context_deleted') % (context_name)}"
         )
-
-
-# техническая команда для сброса состояния
-@router.message(Command(commands='reset'))
-async def process_reset_command(message: Message, state: FSMContext):
-    await state.clear()
-    await message.answer(text=lexicon.get('/reset'))
