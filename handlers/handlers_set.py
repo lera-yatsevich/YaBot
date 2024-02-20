@@ -3,15 +3,14 @@ import re
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
-from aiogram.filters import StateFilter, Command, CommandStart
+from aiogram.filters import StateFilter, Command
 from aiogram.types import Message, CallbackQuery
-from states.states import FSMFillForm
+
 
 from lexicon.lexicon import lexicon
 
 from dbase.connect import getUserParameters, getModelName, listOfModels
 from dbase.connect import updateTemperature, updateMaxTokens, updateModel
-from dbase.connect import registerUser, authRequest
 
 from keyboard.keyboard import createModelKeyboard
 
@@ -86,25 +85,3 @@ async def process_buttons_model(callback: CallbackQuery):
     updateModel(model_id, callback.message.chat.id)
     await callback.message.edit_text(
         text=lexicon.get('set_model_done'))
-
-
-# Срабатывает на команду /start в любом состоянии
-# и выводит описания команд, если прошла авторизация
-@router.message(CommandStart())
-async def process_start_command(message: Message, state: FSMContext):
-    registerUser(message.from_user.id,
-                 message.from_user.first_name,
-                 message.from_user.last_name,
-                 message.from_user.username)
-    if authRequest(message.chat.id):
-        await state.set_state(FSMFillForm.auth)
-        await message.answer(text=lexicon.get('/start'))
-    else:
-        await message.answer(text=lexicon.get('auth_failed'))
-
-
-# техническая команда для сброса состояния
-@router.message(Command(commands='reset'))
-async def process_reset_command(message: Message, state: FSMContext):
-    await state.clear()
-    await message.answer(text=lexicon.get('/reset'))
