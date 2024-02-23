@@ -15,3 +15,8 @@
 | Database    |![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)  |
 | Deploy      | ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white) |
 | FSM         | ![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white) |
+
+## Мониторинг
+Мониторинг активности онлайн через SuperSet Dashboard
+
+<img width="1431" alt="Screenshot 2024-02-23 at 13 24 53" src="https://github.com/lera-yatsevich/YaBot/assets/72576712/8323b7bc-1fed-4ece-9246-36d854810309">
